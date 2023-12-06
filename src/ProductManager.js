@@ -1,13 +1,13 @@
 import utils from "./utils.js";
-import crypto from "crypto"
+import crypto from "crypto";
 
 export class ProductManager {
-  constructor(path){
-    this.path = path
-    this.products = []
+  constructor(path) {
+    this.path = path;
+    this.products = [];
   }
-  
   async addProduct(title, description, price, thumbnail, code, stock) {
+
     if (
       title == undefined ||
       description == undefined ||
@@ -20,6 +20,7 @@ export class ProductManager {
     }
     try {
       let data = await utils.readFile(this.path);
+      console.log(data);
       this.products = data?.length > 0 ? data : [];
     } catch (error) {
       console.log(error);
@@ -40,6 +41,7 @@ export class ProductManager {
         stock,
       };
       this.products.push(newProduct);
+      console.log(this.products.length);
       try {
         await utils.writeFile(this.path, this.products);
       } catch (error) {
@@ -47,73 +49,74 @@ export class ProductManager {
       }
     }
   }
-
   async getProducts() {
     try {
-        let data = await utils.readFile(this.path)
-        return data?.length > 0 ? this.products : "aun no hay registro"
+      let data = await utils.readFile(this.path);
+      this.products = data;
+      return data?.length > 0 ? this.products : "aun no hay registros";
     } catch (error) {
-        console.log(error)
+      console.log(error);
     }
-}
-
+  }
   async getProductById(id) {
     try {
-      let data = await utils.readFile(this.path)
-      this.products = data?.length > 0 ? data : []
-      let product = this.products.find((dato) => dato.id === id)
+      let data = await utils.readFile(this.path);
+      this.products = data?.length > 0 ? data : [];
+      let product = this.products.find((dato) => dato.id === id);
+
+      if (product !== undefined) {
+        return product;
+      } else {
+        return "no existe el producto solicitado";
+      }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
-//   updateProduct(id, updatedFields) {
-//     if (id === undefined || updatedFields === undefined) {
-//       throw new Error("ID y campos actualizados son obligatorios para actualizar el producto");
-//     }
+  async updateProductById(id, data) {
+    try {
+      let products = await utils.readFile(this.path);
+      this.products = products?.length > 0 ? products : [];
 
-//     let productIndex = this.products.findIndex((product) => product.id === id);
+      let productIndex = this.products.findIndex((dato) => dato.id === id);
+      if (productIndex !== -1) {
+        this.products[productIndex] = {
+          ...this.products[productIndex],
+          ...data,
+        };
+        await utils.writeFile(this.path, products);
+        return {
+          mensaje: "producto actualizado",
+          producto: this.products[productIndex],
+        };
+      } else {
+        return { mensaje: "no existe el producto solicitado" };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-//     if (productIndex !== -1) {
-//       updatedFields.id = id;
-
-//       this.products[productIndex] = { ...this.products[productIndex], ...updatedFields };
-
-//       this.updateFile(FILE_NAME, id);
-
-//       return "Producto actualizado correctamente";
-//     } else {
-//       throw new Error("No existe un producto con el ID proporcionado");
-//     }
-//   }
-
-//   updateFile(filename, id) {
-//     const updatedProducts = this.products.map((product) => {
-//       if (product.id === id) {
-//         product.title = "nuevo titulo";
-//         product.price = 300;
-//       }
-//       return product;
-//     });
-
-//     fs.writeFileSync(filename, JSON.stringify(updatedProducts));
-
-//     console.log("actualizacion exitosa");
-//   }
-
-//   deleteProduct(id) {
-//     if (id === undefined) {
-//         throw new Error("ID es obligatorio para eliminar el producto");
-//     }
-
-//     const initialLength = this.products.length;
-//     this.products = this.products.filter((product) => product.id !== id);
-
-//     if (this.products.length === initialLength) {
-//         throw new Error("No existe un producto con el ID proporcionado");
-//     }
-
-//     this.updateFile(FILE_NAME);
-//     return "Producto eliminado correctamente";
-// }
+  async deleteProductById(id) {
+    try {
+      let products = await utils.readFile(this.path);
+      this.products = products?.length > 0 ? products : [];
+      let productIndex = this.products.findIndex((dato) => dato.id === id);
+      if (productIndex !== -1) {
+        let product = this.products[productIndex];
+        this.products.splice(productIndex, 1);
+        await utils.writeFile(this.path, products);
+        return { mensaje: "producto eliminado", producto: product };
+      } else {
+        return { mensaje: "no existe el producto solicitado" };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
+
+export default {
+  ProductManager,
+};
