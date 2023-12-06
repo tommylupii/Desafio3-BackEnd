@@ -15,15 +15,15 @@ async function writeFile(file, data) {
   }
 }
 
-async function readFile(file, data) {
-  try{
-    let readfilename = __dirname + "/" + file
-    console.log("readfile", readfilename)
-    let result = await fs.promises.writeFile(__dirname + "/" + file, "utf-8")
-    let data = await JSON.parse(result)
-    return data
+async function readFile(file) {
+  try {
+      let readfilename = __dirname + "/" + file
+      console.log("readfile", readfilename)
+      let result = await fs.promises.readFile(readfilename, "utf-8")
+      let data = result ? JSON.parse(result) : null
+      return data
   } catch (err) {
-    console.log(err)
+      console.log(err)
   }
 }
 

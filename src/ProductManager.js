@@ -19,20 +19,19 @@ export class ProductManager {
       throw new Error("Todos los campos son obligatorios");
     }
     try {
-      let data = await utils.readFile(this.path)
-      console.log(data, data.length)
-      this.products = data?.length > 0 ? data : []
+      let data = await utils.readFile(this.path);
+      this.products = data?.length > 0 ? data : [];
     } catch (error) {
-      console.log (error)
+      console.log(error);
     }
 
-    let codeExists = this.products.some((dato) => dato.code == code)
+    let codeExists = this.products.some((dato) => dato.code == code);
 
     if (codeExists) {
       throw new Error("El codigo ya existe por favor verifique");
     } else {
       const newProduct = {
-        id: crypto.randomUUID,
+        id: crypto.randomUUID(),
         title,
         description,
         price,
@@ -41,23 +40,22 @@ export class ProductManager {
         stock,
       };
       this.products.push(newProduct);
-      //console.log(this.products.length)
       try {
-        await utils.writeFile(this.path, this.products)
+        await utils.writeFile(this.path, this.products);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     }
   }
 
   async getProducts() {
     try {
-      let data = await utils.readFile(this.path)
-      return data?.length > 0 ? this.products : "aun no hay regisdtro"
+        let data = await utils.readFile(this.path)
+        return data?.length > 0 ? this.products : "aun no hay registro"
     } catch (error) {
-      console.log(error)
+        console.log(error)
     }
-  }
+}
 
   async getProductById(id) {
     try {
